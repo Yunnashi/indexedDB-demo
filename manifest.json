@@ -2,7 +2,7 @@
   "short_name": "TEPGENESYS PI",
   "name": "TEPGENESYS OFFLINE PI",
   "display": "browser",
-  // "start_url": "index.html",
+  "start_url": "index.html",
   "icons": [{
     "src": "../images/logo192.png",
     "sizes": "192x192",
