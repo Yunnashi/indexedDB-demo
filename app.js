@@ -25,6 +25,9 @@ const IDB = (function init() {
   // Webページがメッセージを受信する
   navigator.serviceWorker.onmessage = function(event) {
     console.log('message received from SW', event.data);
+    // consolではなく、に画面にメッセージを表示させる
+    document.getElementById('message').textContent = 'message received from SW: ' + event.data;
+
     if (event.data.command === 'restore') {
       // WebページがIndexedDBにデータを保存する
       let restoredData = event.data.data;
@@ -90,6 +93,8 @@ const IDB = (function init() {
     // WebページからService Workerにメッセージを送信する
     if (navigator.serviceWorker.controller) {
       console.log('sending message to SW' + whiskey);
+      // consolではなく、に画面にメッセージを表示させる
+      document.getElementById('message').textContent = 'sending message to SW: ' + whiskey;
       navigator.serviceWorker.controller.postMessage({
         command: 'backup',
         data: whiskey
