@@ -3,49 +3,24 @@ console.log(uid());
 //nothing else to import because we are using the built in methods
 //https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase
 
+/******************************************
+ * ServiceWorker登録
+ ******************************************/
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("./sw.js")
+    .then(function (registration) {
+      console.log("SWのキャッシュに成功しました。", registration.scope);
+    })
+    .catch(function (err) {
+      console.log("SWのキャッシュに失敗しました。: ", err);
+    });
+}
+
 const IDB = (function init() {
   let db = null;
   let objectStore = null;
   let DBOpenReq = indexedDB.open('WhiskeyDB', 6);
-
-  /******************************************
-   * ServiceWorker登録
-   ******************************************/
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then(function (registration) {
-        console.log("SWのキャッシュに成功しました。", registration.scope);
-      })
-      .catch(function (err) {
-        console.log("SWのキャッシュに失敗しました。: ", err);
-      });
-  }
-
-  // Webページがメッセージを受信する
-  navigator.serviceWorker.onmessage = function(event) {
-    console.log('message received from SW', event.data);
-    // consolではなく、に画面にメッセージを表示させる
-    document.getElementById('message').textContent = 'message received from SW: ' + event.data;
-
-    if (event.data.command === 'restore') {
-      // WebページがIndexedDBにデータを保存する
-      let restoredData = event.data.data;
-      let DBOpenReq = indexedDB.open('WhiskeyDB', 6);
-      DBOpenReq.onsuccess = function(event) {
-        let db = DBOpenReq.result;
-        let tx = db.transaction('whiskeyStore', 'readwrite');
-        let store = tx.objectStore('whiskeyStore');
-        let request = store.add(restoredData);
-        request.onsuccess = (ev) => {
-          console.log('successfully restored an object');
-        };
-        request.onerror = (err) => {
-          console.log('error in request to restore');
-        };
-      };
-    }
-  };
 
   DBOpenReq.addEventListener('error', (err) => {
     //Error occurred while trying to open DB
@@ -89,17 +64,6 @@ const IDB = (function init() {
       age,
       owned,
     };
-
-    // WebページからService Workerにメッセージを送信する
-    if (navigator.serviceWorker.controller) {
-      console.log('sending message to SW' + whiskey);
-      // consolではなく、に画面にメッセージを表示させる
-      document.getElementById('message').textContent = 'sending message to SW: ' + whiskey;
-      navigator.serviceWorker.controller.postMessage({
-        command: 'backup',
-        data: whiskey
-      });
-    }
 
     let tx = makeTX('whiskeyStore', 'readwrite');
     tx.oncomplete = (ev) => {

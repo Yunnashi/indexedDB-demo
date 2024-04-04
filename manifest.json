@@ -1,10 +1,10 @@
 {
-  "short_name": "PWA DEMO",
-  "name": "PWA DEMO",
-  "display": "standalone",
+  "short_name": "TEPGENESYS PI",
+  "name": "TEPGENESYS OFFLINE PI",
+  "display": "browser",
   "start_url": "index.html",
   "icons": [{
-    "src": "images/logo192.png",
+    "src": "../images/logo192.png",
     "sizes": "192x192",
     "type": "image/png"
   }]
