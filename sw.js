@@ -19,16 +19,42 @@ self.addEventListener('install', function(event) {
   );
 });
 
+// アクティベート処理を追加することによって、不要なキャッシュが残らないようにする
+// 現在のCACHE_NAME以外の古いキャッシュを削除
+self.addEventListener('activate', function(event) {
+  // 現在のキャッシュ名をホワイトリストに追加
+  var cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          // ホワイトリストに含まれていないキャッシュ名を削除
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+
 // リソースフェッチ時のロード処理
 self.addEventListener('fetch', function(event) {
   event.respondWith(
-    // リクエストに一致するデータがキャッシュにあるかどうか
-    caches.match(event.request).then(function(response) {
-      return response || fetch(event.request).then(function(response) {
-        return caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(event.request, response.clone());
-          return response;
-        });
+    // ネットワークリクエストする
+    fetch(event.request).then(function(response) {
+      // ネットワークリクエストが成功した場合、キャッシュを更新
+      return caches.open(CACHE_NAME).then(function(cache) {
+        cache.put(event.request, response.clone());
+        return response;
+      });
+    }).catch(function() {
+      // ネットワークリクエストが失敗した場合、キャッシュから取得
+      return caches.match(event.request).then(function(response) {
+        // キャッシュからのレスポンスが見つからなかった場合（responseがnullまたはundefinedの場合）に、
+        // ネットワークからリクエストを再度試みます。
+        return response || fetch(event.request);
       });
     })
   );
