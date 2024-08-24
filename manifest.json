@@ -1,6 +1,6 @@
 {
-  "short_name": "TEPGENESYS PI",
-  "name": "TEPGENESYS OFFLINE PI",
+  "short_name": "OFFLINE APP",
+  "name": "OFFLINE APP",
   "display": "browser",
   "start_url": "index.html",
   "icons": [{
